@@ -25,7 +25,7 @@ data_gad <- read.csv('C:/Users/Psychiatry Lab/Documents/Biobank/14_GAD7/gad7_red
 data_phq<- read.csv('C:/Users/Psychiatry Lab/Documents/Biobank/23_PHQ9/phq9_reduced_data_export_20180222.csv',header=T,na.strings=c(NA,"#N/A"))
 
 
-#------------------------------------------------------------------------
+#------------------------------------- -----------------------------------
 #MERGE Files together to create master dataset
 #------------------------------------------------------------------------
 #merge CPRS corefile and full dataset by assesstment id % LAST NAME
@@ -187,14 +187,14 @@ if(!((is.na(CurrTx5a_AntiD))|(is.na(CurrTx5b_Mood))| (is.na(CurrTx5c_Stim))|(is.
   
   
   
-  
-#   #both_treatments
-# if(!((is.na(treated_medication))|(is.na(treated_psych)))){
-#  if((treated_medication == "Yes_meds") & (treated_psych == "Yes_Talk")){
-#    both_treatments <- "Yes_both" }else{both_treatments<- "No_both"}
-# }else{both_treatments<-NA}
 
-treat <- data.frame(treated_psych, treated_talk, curr_treatment, treated_medication)
+  #both_treatments
+if(!((is.na(treated_medication))|(is.na(treated_talk)))){
+ if((treated_medication== "Yes_meds") & (treated_talk == 1)){
+   both_treatments <- "Yes_both" }else{both_treatments<- "Not_both"}
+}else{both_treatments<-NA}
+
+treat <- data.frame( curr_treatment, treated_talk, treated_medication, both_treatments)
   return(treat)
 }
 
@@ -202,7 +202,7 @@ treat <- data.frame(treated_psych, treated_talk, curr_treatment, treated_medicat
 diagnoses_treated <- adply(dat_with_pcl5, 1, diag_treated0)
 
 #LOOK AT RESPONSES FROM DIAGNOSIS TREATED COLUMSN CREATED
-View(diagnoses_treated[,c(1:2, 846:850)])
+View(diagnoses_treated[,c(1:2, 847:850)])
 
 #------------------------------------------------------------------------
 #SUBSET to select variables desired for analysis and report
@@ -232,6 +232,7 @@ data_report<- subset(diagnoses_treated,
                            curr_treatment,
                            treated_medication,
                            treated_talk,
+                           both_treatments,
                            case_control,
                            Study_completed
 ))
@@ -372,7 +373,7 @@ calculated_changes<- subset(by_visits,
                             ))
 
 #remove data frams that will no longer be used
-rm ("newdf_treatment_by_visit","newdf_talk_treat_by_visit","newdf_meds_treat_by_visit", "newdf_psycho_treat_by_visit", "by_visits000000", "by_visits00000","by_visits0000","by_visits000","by_visits00", "by_visits0","scored_pcl_change", "scored_gad_change", "scored_phq_change", "newdf_gad_by_visit", "newdf_pcl_by_visit","newdf_phq_by_visit")
+rm ("newdf_treatment_by_visit","newdf_talk_treat_by_visit","newdf_meds_treat_by_visit", "by_visits000000", "by_visits00000","by_visits0000","by_visits000", "by_visits0","scored_pcl_change", "scored_gad_change", "scored_phq_change", "newdf_gad_by_visit", "newdf_pcl_by_visit","newdf_phq_by_visit")
 
 
 #merge new variables for changes between visits with original report
@@ -522,13 +523,13 @@ data_report_with_scores_per_person<- merge(data_report,by_visits, by=("vista_las
 #OUTPUT
 #------------------------------------------------------------------------
 #Export data report
-#write.csv(data_report, "~/Biobank/00_analyses/data_report_Lang_2018312.csv",quote=T,row.names=F,na="#N/A")
+#write.csv(data_report, "~/Biobank/00_analyses/data_report_treatment_2018316.csv",quote=T,row.names=F,na="#N/A")
 
 #Export changes report by visit
-#write.csv(by_visits, "~/Biobank/00_analyses/report_with_calculated_changes_by_visits_20180312.csv",quote=T,row.names=F,na="#N/A")
+#write.csv(by_visits, "~/Biobank/00_analyses/report_with_calculated_changes_by_visits_20180316.csv",quote=T,row.names=F,na="#N/A")
 
 #Export changes report
-#write.csv(data_report_with_changes2, "~/Biobank/00_analyses/report_with_calculated_changes_report_20180312.csv",quote=T,row.names=F,na="#N/A")
+#write.csv(report_with_new_cols, "~/Biobank/00_analyses/report_with_treatment_changes_20180316.csv",quote=T,row.names=F,na="#N/A")
 
 
 
