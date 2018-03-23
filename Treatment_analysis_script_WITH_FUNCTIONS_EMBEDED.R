@@ -87,6 +87,104 @@ dat_with_pcl5 <- cbind(dat_with_pcl5, treated_psych)
 source("~/Biobank/00_analyses/currently_recieving_treatment.R")
 diagnoses_treated <- adply(dat_with_pcl5, 1, diag_treated0)
 
+# Below is the code for the function being called
+# #fuction that creates columns about treatment
+# diag_treated0 <- function(x){
+#   for (v in 1:length(x)) assign(names(x)[v], x[[v]])
+#   
+#   #Currently being treated for a mental health issue?, call it "curr_treatment"
+#   #if they answered Yes to any of the disgnoses being treated or yes to being treated, it will be coded as a yes
+#   if(!((is.na(CurrTx2a_Dep))|(is.na(CurrTx2b_Anx))| (is.na(CurrTx2c_PTSD))|(is.na(CurrTx2d_Schiz))|(is.na(CurrTx2e_BP))|(is.na(CurrTx2f_Subst))|(is.na(CurrTx2g_Other)))){
+#     if(CurrTx2a_Dep==1 | CurrTx2b_Anx==1 |CurrTx2c_PTSD==1 | CurrTx2d_Schiz==1 |CurrTx2e_BP==1 | CurrTx2f_Subst==1 | CurrTx2g_Other==1)
+#     {diagnosis_treated <- 1}
+#     else{diagnosis_treated <- 0}
+#   }else{diagnosis_treated<-NA}
+#   
+#   
+#   if (is.na(diagnosis_treated) & is.na(CurrentTreatments1_MHTx) )
+#   {
+#     curr_treatment <- NA
+#   } else if ( diagnosis_treated == 1 & is.na(CurrentTreatments1_MHTx)  )
+#   {
+#     curr_treatment <- 1
+#   } else if ( is.na(diagnosis_treated) & CurrentTreatments1_MHTx == 1  )
+#   {
+#     curr_treatment <- 1
+#   } else if ( diagnosis_treated == 1 & CurrentTreatments1_MHTx == 1  )
+#   {
+#     curr_treatment <- 1
+#   } else if ( diagnosis_treated == 0 & is.na(CurrentTreatments1_MHTx)  )
+#   {
+#     curr_treatment <- 0
+#   } else if ( is.na(diagnosis_treated) & CurrentTreatments1_MHTx == 0  )
+#   {
+#     curr_treatment <- 0
+#   } else if ( diagnosis_treated == 0 & CurrentTreatments1_MHTx == 0  )
+#   {
+#     curr_treatment <- 0
+#   } else if ( diagnosis_treated == 0 & CurrentTreatments1_MHTx == 1  )
+#   {
+#     curr_treatment <- 1
+#   } else if ( diagnosis_treated == 1 & CurrentTreatments1_MHTx == 0 )
+#   {
+#     curr_treatment <- 1
+#   } else {curr_treatment <- NA}
+#   
+#   
+#   
+#   #Currently recieve medications as part of their treatment
+#   #treated_medication, if they answered yes to any medication
+#   if(!((is.na(CurrTx5a_AntiD))|(is.na(CurrTx5b_Mood))| (is.na(CurrTx5c_Stim))|(is.na(CurrTx5d_Sleep))|(is.na(CurrTx5e_Benzo))|(is.na(CurrTx5f_AntiPsy))|(is.na(CurrTx5g_Adren))|(is.na(CurrTx5h_Other)))){
+#     if(CurrTx5a_AntiD==1 | CurrTx5b_Mood==1 |CurrTx5c_Stim==1 | CurrTx5d_Sleep==1 |CurrTx5e_Benzo==1 | CurrTx5f_AntiPsy==1 | CurrTx5g_Adren==1| CurrTx5h_Other==1)
+#     {
+#       treated_medication <- "Yes_meds"}else{treated_medication <- "No_meds"}
+#   }else{treated_medication<-"No_meds"}
+#   
+#   
+#   
+#   #Currently recieve psychotherapy as part of their treatment
+#   #treated_talk, if they said yest to currently being treated or said yes to recieving a specific Phsychotherapy
+#   
+#   if (is.na(treated_psych) & is.na(curr_psychor) )
+#   {
+#     treated_talk <- NA
+#   } else if (treated_psych == 1 & is.na(curr_psychor)  )
+#   { 
+#     treated_talk <- 1
+#   } else if (is.na(treated_psych) & curr_psychor == 1  )
+#   {
+#     treated_talk <- 1
+#   } else if (treated_psych == 1 & curr_psychor == 1  )
+#   {
+#     treated_talk <- 1
+#   } else if (treated_psych == 0 & is.na(curr_psychor)  )
+#   {
+#     treated_talk <- 0
+#   } else if (is.na(treated_psych) & curr_psychor == 0  )
+#   {
+#     treated_talk <- 0
+#   } else if (treated_psych == 0 & curr_psychor == 0  )
+#   {
+#     treated_talk <- 0
+#   } else if (treated_psych == 0 & curr_psychor == 1  )
+#   {
+#     treated_talk <- 1
+#   } else if (treated_psych == 1 & curr_psychor == 0 )
+#   {
+#     treated_talk <- 1
+#   } else {treated_talk <- NA}
+#   
+#   
+#   #both_treatments, if they are currently recieving either medications or psychotherapy
+#   if(!((is.na(treated_medication))|(is.na(treated_talk)))){
+#     if((treated_medication== "Yes_meds") & (treated_talk == 1)){
+#       both_treatments <- "Yes_both" }else{both_treatments<- "Not_both"}
+#   }else{both_treatments<-NA}
+#   
+#   treat <- data.frame( curr_treatment, treated_talk, treated_medication, both_treatments)
+#   return(treat)
+# }
+
 #Check if psychotherapy check worked
 View(diagnoses_treated[,c(1:2, 846:847, 849)])
 
@@ -277,6 +375,136 @@ data_report_with_scores_per_person<- merge(data_report,by_visits, by=("vista_las
 #------------------------------------------------------------------------
  source("~/Biobank/00_analyses/add_drop_treatment.R")
  report_with_new_cols <- adply(data_report_with_scores_per_person, 1, add_drop)
+ 
+# Below is the code for the function being called
+# #CREATE THE ADD AND DROP COLUMNS
+# add_drop <- function(x){
+#   for (v in 1:length(x)) assign(names(x)[v], x[[v]])
+#   
+#   #MEDS COLUMNS
+#   #Add and Drop Meds columns (visit 1 to 2)
+#   if(!((is.na(v1_meds_treat))|(is.na(v2_meds_treat)))){
+#     if((v1_meds_treat == "Yes_meds") & (v2_meds_treat == "Yes_meds")){
+#       addmeds_v1_2 <- "No_Change" }
+# 
+#     else if((v1_meds_treat == "No_meds") & (v2_meds_treat == "No_meds")){
+#       addmeds_v1_2 <- "No_Change" }
+# 
+#     else if((v1_meds_treat == "No_meds") & (v2_meds_treat == "Yes_meds")){
+#       addmeds_v1_2 <- "Add_Meds"
+# 
+#     }else{addmeds_v1_2 <- "0"
+#     }
+#   }else{addmeds_v1_2<-NA}
+# 
+#   if(!((is.na(v1_meds_treat))|(is.na(v2_meds_treat)))){
+#     if((v1_meds_treat == "Yes_meds") & (v2_meds_treat == "Yes_meds")){
+#       dropmeds_v1_2 <- "No_Change" }
+# 
+#     else if((v1_meds_treat == "No_meds") & (v2_meds_treat == "No_meds")){
+#       dropmeds_v1_2 <- "No_Change" }
+# 
+#     else if((v1_meds_treat == "Yes_meds") & (v2_meds_treat == "No_meds")){
+#       dropmeds_v1_2 <- "drop_Meds"
+# 
+#     }else{dropmeds_v1_2 <- "0"
+#     }
+#   }else{dropmeds_v1_2<-NA}
+#   
+#   #Add and Drop Meds columns (visit 2 to 3)
+#   if(!((is.na(v2_meds_treat))|(is.na(v3_meds_treat)))){
+#     if((v2_meds_treat == "Yes_meds") & (v3_meds_treat == "Yes_meds")){
+#       addmeds_v2_3 <- "No_Change" }
+#     
+#     else if((v2_meds_treat == "No_meds") & (v3_meds_treat == "No_meds")){
+#       addmeds_v2_3 <- "No_Change" }
+#     
+#     else if((v2_meds_treat == "No_meds") & (v3_meds_treat == "Yes_meds")){
+#       addmeds_v2_3 <- "Add_Meds"
+#       
+#     }else{addmeds_v2_3 <- "0"
+#     }
+#   }else{addmeds_v2_3<-NA}
+#   
+#   
+#   if(!((is.na(v2_meds_treat))|(is.na(v3_meds_treat)))){
+#     if((v2_meds_treat == "Yes_meds") & (v3_meds_treat == "Yes_meds")){
+#       dropmeds_v2_3 <- "No_Change" }
+#     
+#     else if((v2_meds_treat == "No_meds") & (v3_meds_treat == "No_meds")){
+#       dropmeds_v2_3 <- "No_Change" }
+#     
+#     else if((v2_meds_treat == "Yes_meds") & (v3_meds_treat == "No_meds")){
+#       dropmeds_v2_3 <- "drop_Meds"
+#       
+#     }else{dropmeds_v2_3 <- "0"
+#     }
+#   }else{dropmeds_v2_3<-NA}
+# 
+#   #TALK COLUMNS
+#   #Add and Drop TALK columns (VISIT 1 TO 2)
+#   if(!((is.na(v1_talk_treat))|(is.na(v2_talk_treat)))){
+#     if((v1_talk_treat == 1) & (v2_talk_treat == 1)){
+#       addtalk_v1_2 <- "No_Change" }
+# 
+#     else if((v1_talk_treat == 0) & (v2_talk_treat == 0)){
+#       addtalk_v1_2 <- "No_Change" }
+# 
+#     else if((v1_talk_treat == 0) & (v2_talk_treat == 1)){
+#       addtalk_v1_2 <- "Add_talk"
+# 
+#     }else{addtalk_v1_2 <- "0"
+#     }
+#   }else{addtalk_v1_2<-NA}
+# 
+#   if(!((is.na(v1_talk_treat))|(is.na(v2_talk_treat)))){
+#     if((v1_talk_treat == 1) & (v2_talk_treat == 1)){
+#       droptalk_v1_2 <- "No_Change" }
+# 
+#     else if((v1_talk_treat == 0) & (v2_talk_treat == 0)){
+#       droptalk_v1_2 <- "No_Change" }
+# 
+#     else if((v1_talk_treat == 1) & (v2_talk_treat == 0)){
+#       droptalk_v1_2 <- "drop_talk"
+# 
+#     }else{droptalk_v1_2 <- "0"
+#     }
+#   }else{droptalk_v1_2<-NA}
+# 
+#   #Add and Drop TALK columns (VISIT 2 TO 3)
+#   if(!((is.na(v2_talk_treat))|(is.na(v3_talk_treat)))){
+#     if((v2_talk_treat == 1) & (v3_talk_treat == 1)){
+#       addtalk_v2_3 <- "No_Change" }
+# 
+#     else if((v2_talk_treat == 0) & (v3_talk_treat == 0)){
+#       addtalk_v2_3 <- "No_Change" }
+# 
+#     else if((v2_talk_treat == 0) & (v3_talk_treat == 1)){
+#       addtalk_v2_3 <- "Add_talk"
+# 
+#     }else{addtalk_v2_3 <- "0"
+#     }
+#   }else{addtalk_v2_3<-NA}
+# 
+#   if(!((is.na(v2_talk_treat))|(is.na(v3_talk_treat)))){
+#     if((v2_talk_treat == 1) & (v3_talk_treat == 1)){
+#       droptalk_v2_3 <- "No_Change" }
+# 
+#     else if((v2_talk_treat == 0) & (v3_talk_treat == 0)){
+#       droptalk_v2_3 <- "No_Change" }
+# 
+#     else if((v2_talk_treat == 1) & (v3_talk_treat == 0)){
+#       droptalk_v2_3 <- "drop_talk"
+# 
+#     }else{droptalk_v2_3 <- "0"
+#     }
+#   }else{droptalk_v2_3<-NA}
+# 
+#   newcol<- data.frame(addmeds_v1_2, dropmeds_v1_2,addmeds_v2_3,dropmeds_v2_3, addtalk_v1_2, droptalk_v1_2, addtalk_v2_3, droptalk_v2_3)
+#   return(newcol)
+# }
+#
+#report_with_new_cols <- adply(data_report_with_changes, 1, add_drop)
 
 #------------------------------------------------------------------------
 #OUTPUT
@@ -289,3 +517,7 @@ data_report_with_scores_per_person<- merge(data_report,by_visits, by=("vista_las
 
 #Export changes report
 #write.csv(report_with_new_cols, "~/Biobank/00_analyses/report_with_treatment_changes_20180316.csv",quote=T,row.names=F,na="#N/A")
+
+
+
+
