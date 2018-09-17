@@ -61,7 +61,14 @@ data_merged <- merge(dat0, p2list, by=c("phenotype_id", "study_number"), all = T
 
 dim(p2list) #65889
 dim(dat0) #72437
-dim(data_merged) #88955 
+dim(data_merged) #88955
+
+
+# 
+# defenddata <- data_merged[which(data_merged$study_number==12),]
+# saturndata <- data_merged[which(data_merged$study_number==11),]
+# feenydata <- data_merged[which(data_merged$study_number==37),]
+
 
 noGWASinfo<- data_merged[is.na(data_merged$gwas_iid),]
 dim(noGWASinfo) #16514
@@ -73,12 +80,23 @@ matched_only<- data_merged[!(is.na(data_merged$gwas_iid)),]
 dim(matched_only) #72441
 
 no_case_status<- data_merged[is.na(data_merged$Case),]
+table(no_case_status$study_number)
 #write.csv(noGWASinfo, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/noGWASinfo.csv",quote=T,row.names=F,na="#N/A")
 
 fam_n<- table(dat0$study_number)
 matched_n<- table(matched_only$study_number)
 Nsmatched<- cbind(fam_n,matched_n)
 Nsmatched
+
+
+defenddata <- matched_only[which(matched_only$study_number==12),]
+saturndata <- matched_only[which(matched_only$study_number==11),]
+feenydata <- matched_only[which(matched_only$study_number==37),] #share now
+data41 <- matched_only[which(matched_only$study_number==41),] #share now
+data42 <- matched_only[which(matched_only$study_number==42),] #share now
+data43 <- matched_only[which(matched_only$study_number==43),] #share now
+data46 <- matched_only[which(matched_only$study_number==46),] #share now
+
 
 # x_n<- table(matched_only$study_abbrev.x)
 # y_n<- table(matched_only$study_abbrev.y)
@@ -149,6 +167,7 @@ pt$defineCalculation(calculationName="TotalN", summariseExpression="n()")
 pt$evaluatePivot()
 ptsave<-pt$asMatrix(includeHeaders=TRUE, rawValue=TRUE)
 ptsave
+#write.csv(ptsave, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/sexmatch_bystudy.csv",quote=T,row.names=F,na="#N/A")
 
 #SUBJECTS THAT DO NOT MATCH, INVESTIGATE FURTHER
 #check subjects whose DX does not match
@@ -158,42 +177,121 @@ no_match_subjects<- matched_only[matched_only$dxmatch=="no_match",]
 no_match_sex_subjects<- matched_only[matched_only$sexmatch=="no_match",]
 
 subjects_who_do_not_match<- rbind(no_match_subjects, no_match_sex_subjects)
-write.csv(subjects_who_do_not_match, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/subjects_with_match_issues.csv",quote=T,row.names=F,na="#N/A")
+#write.csv(subjects_who_do_not_match, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/subjects_with_match_issues.csv",quote=T,row.names=F,na="#N/A")
 
-
-
+#cHECK IF THE NUMBER OF CASES MATCHED WHAT IS ON TABLE 1
+p2case<- table(matched_only$study_number, by= matched_only$Case )
+p1case<- table(matched_only$study_number, by= matched_only$gwas_dx)
+cases<- cbind(p2case, p1case)
 
 #Subset and export files where all items match
-nhs2_5<- matched_only[matched_only$study_number==5,]
-satu_11<- matched_only[matched_only$study_number==11,]
-defe_12<- matched_only[matched_only$study_number==12,]
-guts_21<- matched_only[matched_only$study_number==21,]
-nrv2_22<- matched_only[matched_only$study_number==22,]
-bry2_36<- matched_only[matched_only$study_number==36,]
-feen_37<- matched_only[matched_only$study_number==37,]
-ncmh_41<- matched_only[matched_only$study_number==41,]
-earc_42<- matched_only[matched_only$study_number==42,]
-wach_43<- matched_only[matched_only$study_number==43,]
-shrs_46<- matched_only[matched_only$study_number==46,]
+mrsc_1<- matched_only[which(matched_only$study_number==1),]
+onga_2<- matched_only[which(matched_only$study_number==2),]
+safr_3<- matched_only[which(matched_only$study_number==3),]
+dnhs_4<- matched_only[which(matched_only$study_number==4),]
+nhs2_5<- matched_only[which(matched_only$study_number==5),]
+gsdc_6<- matched_only[which(matched_only$study_number==6),]
+fscd_7<- matched_only[which(matched_only$study_number==7),]
+coga_8<- matched_only[which(matched_only$study_number==8),]
+cogb_9<- matched_only[which(matched_only$study_number==9),]
+satu_11<- matched_only[which(matched_only$study_number==11),] #dont match table 1 (controls: 58,cases: 85)
+defe_12<- matched_only[which(matched_only$study_number==12),] #dont match table 1 (controls: 48,cases: 78)
+nhrv_13<- matched_only[which(matched_only$study_number==13),]
 
-write.csv(nhs2_5, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/nhs2_2.csv",quote=T,row.names=F,na="-9")
-write.csv(satu_11, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/satu_11.csv",quote=T,row.names=F,na="-9")
-write.csv(defe_12, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/defe_12.csv",quote=T,row.names=F,na="-9")
-write.csv(guts_21, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/guts_21.csv",quote=T,row.names=F,na="-9")
-write.csv(nrv2_22, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/nrv2_22.csv",quote=T,row.names=F,na="-9")
-write.csv(bry2_36, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/bry2_36.csv",quote=T,row.names=F,na="-9")
-write.csv(feen_37, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/feen_37.csv",quote=T,row.names=F,na="-9")
-write.csv(ncmh_41, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/ncmh_41.csv",quote=T,row.names=F,na="-9")
-write.csv(earc_42, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/earc_42.csv",quote=T,row.names=F,na="-9")
-write.csv(wach_43, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/wach_43.csv",quote=T,row.names=F,na="-9")
-write.csv(shrs_46, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/shrs_46.csv",quote=T,row.names=F,na="-9")
+ksud_17<- matched_only[which(matched_only$study_number==17),]
+boba_18<- matched_only[which(matched_only$study_number==18),]
+kmct_19<- matched_only[which(matched_only$study_number==19),]
+port_20<- matched_only[which(matched_only$study_number==20),]
+guts_21<- matched_only[which(matched_only$study_number==21),]
+nrv2_22<- matched_only[which(matched_only$study_number==22),]
+prom_23<- matched_only[which(matched_only$study_number==23),]
 
-# plot(nhs2$CT_Count,nhs2$gwas_dx,pch=8)
-lmfit   <- lm(gwas_dx~CT_Count,nhs2)
-plot(jitter(nhs2$gwas_dx),jitter(nhs2$CT_Count))
+pris_25<- matched_only[which(matched_only$study_number==25),]
 
-plot(nhs2$gwas_dx,nhs2$CT_Count)
+ring_33<- matched_only[which(matched_only$study_number==33),]
 
-cor(nhs2$LT_Count,nhs2$CT_Count, use= "pairwise.complete.obs")
-cor(nhs2$gwas_dx,nhs2$CT_Count, use= "pairwise.complete.obs")
-cor(nhs2$gwas_dx,nhs2$LT_Count, use= "pairwise.complete.obs")
+bry2_36<- matched_only[which(matched_only$study_number==36),]
+feen_37<- matched_only[which(matched_only$study_number==37),]
+dcsr_38<- matched_only[which(matched_only$study_number==38),]
+
+teic_39<- matched_only[which(matched_only$study_number==39),]
+
+niut_40<- matched_only[which(matched_only$study_number==40),]
+ncmh_41<- matched_only[which(matched_only$study_number==41),]
+earc_42<- matched_only[which(matched_only$study_number==42),]
+wach_43<- matched_only[which(matched_only$study_number==43),]
+eghs_44<- matched_only[which(matched_only$study_number==44),]
+shrs_46<- matched_only[which(matched_only$study_number==46),]
+adnh_45<- matched_only[which(matched_only$study_number==45),]
+gtpc_47<- matched_only[which(matched_only$study_number==47),]
+betr_48<- matched_only[which(matched_only$study_number==48),]
+seep_49<- matched_only[which(matched_only$study_number==49),]
+com1_50<- matched_only[which(matched_only$study_number==50),]
+ftcb_52<- matched_only[which(matched_only$study_number==52),]
+grac_54<- matched_only[which(matched_only$study_number==54),]
+gmrf_55<- matched_only[which(matched_only$study_number==55),]
+yehu_56<- matched_only[which(matched_only$study_number==56),]
+bake_57<- matched_only[which(matched_only$study_number==57),]
+vris_58<- matched_only[which(matched_only$study_number==58),]
+wang_59<- matched_only[which(matched_only$study_number==59),]
+
+
+
+write.csv(mrsc_1, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/1_mrsc.csv",quote=T,row.names=F,na="-9")
+write.csv(onga_2, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/2_onga.csv",quote=T,row.names=F,na="-9")
+write.csv(safr_3, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/3_safr.csv",quote=T,row.names=F,na="-9")
+write.csv(dnhs_4, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/4_dnhs.csv",quote=T,row.names=F,na="-9")
+write.csv(nhs2_5, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/5_nhs2.csv",quote=T,row.names=F,na="-9")
+write.csv(gsdc_6, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/6_gsdc.csv",quote=T,row.names=F,na="-9")
+write.csv(fscd_7, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/7_fscd.csv",quote=T,row.names=F,na="-9")
+write.csv(coga_8, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/8_coga.csv",quote=T,row.names=F,na="-9")
+write.csv(cogb_9, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/9_cogb.csv",quote=T,row.names=F,na="-9")
+write.csv(satu_11, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/11_satu.csv",quote=T,row.names=F,na="-9")
+write.csv(defe_12, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/12_defe.csv",quote=T,row.names=F,na="-9")
+write.csv(nhrv_13, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/13_nhrv.csv",quote=T,row.names=F,na="-9")
+write.csv(ksud_17, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/17_ksud.csv",quote=T,row.names=F,na="-9")
+write.csv(boba_18, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/18_boba.csv",quote=T,row.names=F,na="-9")
+write.csv(kmct_19, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/19_kmct.csv",quote=T,row.names=F,na="-9")
+write.csv(port_20, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/20_port.csv",quote=T,row.names=F,na="-9")
+write.csv(guts_21, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/21_guts.csv",quote=T,row.names=F,na="-9")
+write.csv(nrv2_22, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/22_nrv2.csv",quote=T,row.names=F,na="-9")
+write.csv(prom_23, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/23_prom.csv",quote=T,row.names=F,na="-9")
+write.csv(pris_25, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/25_pris.csv",quote=T,row.names=F,na="-9")
+write.csv(ring_33, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/33_ring.csv",quote=T,row.names=F,na="-9")
+write.csv(bry2_36, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/36_bry2.csv",quote=T,row.names=F,na="-9")
+write.csv(feen_37, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/37_feen.csv",quote=T,row.names=F,na="-9")
+write.csv(dcsr_38, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/38_dcsr.csv",quote=T,row.names=F,na="-9")
+write.csv(teic_39, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/39_teic_1.csv",quote=T,row.names=F,na="-9")
+
+
+write.csv(niut_40, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/40_niut.csv",quote=T,row.names=F,na="-9")
+write.csv(ncmh_41, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/41_ncmh.csv",quote=T,row.names=F,na="-9")
+write.csv(earc_42, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/42_earc.csv",quote=T,row.names=F,na="-9")
+write.csv(wach_43, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/43_wach.csv",quote=T,row.names=F,na="-9")
+write.csv(eghs_44, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/44_eghs.csv",quote=T,row.names=F,na="-9")
+write.csv(adnh_45, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/45_adnh.csv",quote=T,row.names=F,na="-9")
+write.csv(shrs_46, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/46_shrs.csv",quote=T,row.names=F,na="-9")
+write.csv(gtpc_47, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/47_gtpc.csv",quote=T,row.names=F,na="-9")
+write.csv(betr_48, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/48_betr.csv",quote=T,row.names=F,na="-9")
+write.csv(seep_49, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/49_seep.csv",quote=T,row.names=F,na="-9")
+write.csv(com1_50, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/50_com1.csv",quote=T,row.names=F,na="-9")
+write.csv(ftcb_52, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/52_ftcb.csv",quote=T,row.names=F,na="-9")
+write.csv(grac_54, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/54_grac.csv",quote=T,row.names=F,na="-9")
+write.csv(gmrf_55, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/55_gmrf.csv",quote=T,row.names=F,na="-9")
+write.csv(yehu_56, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/56_yehu.csv",quote=T,row.names=F,na="-9")
+write.csv(bake_57, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/57_bake.csv",quote=T,row.names=F,na="-9")
+write.csv(vris_58, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/58_vris.csv",quote=T,row.names=F,na="-9")
+write.csv(wang_59, "C:/Users/Nievergelt Lab/Documents/GWAS_Freeze2_CURRENT/000_GxE_Project/output/59_wang.csv",quote=T,row.names=F,na="-9")
+
+
+
+# 
+# # plot(nhs2$CT_Count,nhs2$gwas_dx,pch=8)
+# lmfit   <- lm(gwas_dx~CT_Count,nhs2)
+# plot(jitter(nhs2$gwas_dx),jitter(nhs2$CT_Count))
+# 
+# plot(nhs2$gwas_dx,nhs2$CT_Count)
+# 
+# cor(nhs2$LT_Count,nhs2$CT_Count, use= "pairwise.complete.obs")
+# cor(nhs2$gwas_dx,nhs2$CT_Count, use= "pairwise.complete.obs")
+# cor(nhs2$gwas_dx,nhs2$LT_Count, use= "pairwise.complete.obs")
