@@ -48,8 +48,8 @@ diag_treated0 <- function(x){
   if(!((is.na(CurrTx5a_AntiD))|(is.na(CurrTx5b_Mood))| (is.na(CurrTx5c_Stim))|(is.na(CurrTx5d_Sleep))|(is.na(CurrTx5e_Benzo))|(is.na(CurrTx5f_AntiPsy))|(is.na(CurrTx5g_Adren))|(is.na(CurrTx5h_Other)))){
     if(CurrTx5a_AntiD==1 | CurrTx5b_Mood==1 |CurrTx5c_Stim==1 | CurrTx5d_Sleep==1 |CurrTx5e_Benzo==1 | CurrTx5f_AntiPsy==1 | CurrTx5g_Adren==1| CurrTx5h_Other==1)
     {
-      treated_medication <- "Yes_meds"}else{treated_medication <- "No_meds"}
-  }else{treated_medication<-"No_meds"}
+      treated_medication <- 1}else{treated_medication <- 0}
+  }else{treated_medication<-0}
   
   
   
@@ -85,13 +85,8 @@ diag_treated0 <- function(x){
     treated_talk <- 1
   } else {treated_talk <- NA}
   
+
   
-  #both_treatments, if they are currently recieving either medications or psychotherapy
-  if(!((is.na(treated_medication))|(is.na(treated_talk)))){
-    if((treated_medication== "Yes_meds") & (treated_talk == 1)){
-      both_treatments <- "Yes_both" }else{both_treatments<- "Not_both"}
-  }else{both_treatments<-NA}
-  
-  treat <- data.frame( curr_treatment, treated_talk, treated_medication, both_treatments)
+  treat <- data.frame( curr_treatment, treated_talk, treated_medication)
   return(treat)
 }
