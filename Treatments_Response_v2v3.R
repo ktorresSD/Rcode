@@ -7,20 +7,23 @@ library(ggplot2)
 
 #READ THIS !
 
-#BEFORE RUNNING THIS CODE I manually replaced all "Y" with "1" and "N" with "0" in Excel
-#Also, I made all missing values for the specific treatments 0's as we are only interested in the 1's for this varibale making
+#BEFORE RUNNING THIS CODE I manually:
+#merge in recruitment site column from corefile and remove all perinatal subjects
 
 
-
+# Erase the 1st row so the 2nd row becomes the headers
+# replaced all the cells containing "Y" entries with "1" and cells containg "N" with "0" in Excel
+# Also, I made all missing values for the specific treatments 0's (I.E. QUESTION 2,5,6,7, and 8)
+# because we are only interested in the 1's for this varibale making
 
 
 #PART 1: data manipulation to establish what therapy (if any) was the subject taking in this assessment
 #--------------------------------------------------------------------------------------------------
-current <- read.csv('C:/Users/Nievergelt Lab/Documents/Biobank/00_analyses/Treatment_Response/Current_treatments_20191216.csv',header=T,na.strings=c("#N/A",NA, "" ))
+current <- read.csv('C:/Users/Nievergelt Lab/Documents/Biobank/00_analyses/Treatment_Response/Current_treatments_201912.csv',header=T,na.strings=c("#N/A",NA, "" ))
 #pcl <- read.csv('C:/Users/Nievergelt Lab/Documents/Biobank/21_PCL_5_monthly/pcl5_current_scored_data_export.csv',header=T,na.strings=c("#N/A",NA))
 pcl <- read.csv('C:/Users/Nievergelt Lab/Documents/Biobank/00_analyses/Treatment_Response/pcl5_current_scored_data_export.csv',header=T,na.strings=c("#N/A",NA))
 
-myvars <- c("assessment_id", "vista_lastname","visit_number","pcl_total" ,"pcl_5_dsm","pcl_5_dsm_infer")
+myvars <- c("assessment_id", "vista_lastname","visit_number","pcl_total", "pcl_33", "pcl_5_dsm","pcl_5_dsm_infer")
 pclsub<- pcl[myvars]
 dim(current)
 dim(pcl)
@@ -55,14 +58,19 @@ currpcl[, paste0('followup', idx)] <- lapply(idx, function(x)
 currpcl <- currpcl[which(currpcl$followup3 =='yes'), ]
 currpcl <- currpcl[which(currpcl$visit_number != 1), ]
 
-#3. creates a column that shows all subjects with DSM-5 case status at first of 2 visits
+#3a. creates a column that shows all subjects with DSM-5 case status at first of 2 visits
 currpcl$dsm_at_fist<- ifelse(currpcl$pcl_5_dsm_infer ==1 & currpcl$visit_number == 2,1,0)
+
+#3b. creates a column that shows all subjects with DSM-5 case status at first of 2 visits
+currpcl$pcl33_at_fist<- ifelse(currpcl$pcl_33 ==1 & currpcl$visit_number == 2,1,0)
+
 
 #4. Subjects who said they were in PTSD treatment at first of 2 visits
 currpcl$PTSD_at_fist<- ifelse(currpcl$CurrTx2c_PTSD_p2 ==1 & currpcl$visit_number == 2,1,0)
 
+
 #5. Criteria met: Has a followup visit, PCL-5 DX and said PTSD in treatment at first of 2 visits
-currpcl$Criteria_met<- ifelse(currpcl$followup3 =='yes' & currpcl$dsm_at_fist ==1 & currpcl$PTSD_at_fist== 1,1,0)
+currpcl$Criteria_met<- ifelse(currpcl$followup3 =='yes' & currpcl$pcl33_at_fist ==1 & currpcl$dsm_at_fist ==1 & currpcl$PTSD_at_fist== 1,1,0)
 
 
 #6. If subject met criteria in first visit, then also keep their 2nd visit and remove all other
@@ -178,7 +186,7 @@ for(i in 1:dim(currpcl)[1]) {
   if(currpcl$both[i]==1){ currpcl$group[i] <- "both"
     }else if(currpcl$anymeds[i]==1){ currpcl$group[i] <- "meds"
     }else if(currpcl$anytalk[i]==1){ currpcl$group[i] <- "talk"
-  }else{currpcl$group[i]<-"neither"}
+  }else{currpcl$group[i]<-"No specified treatment"}
 }
 
 
@@ -188,8 +196,8 @@ for(i in 1:dim(currpcl)[1]) {
 #PLOT (needs work)
 #--------------------------------------------------------------------------------------------------
 #Plot individual PCL curves by visit
-p <- ggplot(data = currpcl, aes(x = visit_number, y = pcl_total, group = as.factor(vista_lastname), colour=vista_lastname))
-p + geom_line()
+p <- ggplot(data = currpcl, aes(x = visit_number, y = pcl_total, group = as.factor(vista_lastname), colour=group))
+p + geom_line() + facet_grid(cols = vars(group))
 
 #EXPORT SUBSET
 #--------------------------------------------------------------------------------------------------
@@ -258,3 +266,7 @@ myvars2 <- c("vista_lastname", "assessment_id.2", "assessment_id.3",
              "group.2","group.3", "treated.2", "treated.3", "pcl_total.2", "pcl_total.3", "v2v3", "change_v2_v3")
 SUBcurr2<- curr_wide[,myvars2]
 write.csv(SUBcurr2, "C:/Users/Nievergelt Lab/Documents/Biobank/00_analyses/Treatment_Response/0_currentTX_longitudinal_followup_v2v3.csv")
+
+
+
+
