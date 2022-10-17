@@ -20,16 +20,17 @@
 # -----------------------------------------
 
 
-#Things I need to figure out that are not working
+#Things to add
 # -----------------------------------------
-#LOOP RETURN:
-  #returning the list of items that meet criteria only for month 9
-  #either which points meet criteria or which rule was violated
+#LOOP RETURN: #which rule was violated
 
 #PLOT:
   #figure out months in axis
-  
 
+#STORE PLOTS:
+#Want to append these visuals to some sort of document
+
+  
 
 # -----------------------------------------
 # LOAD DATA
@@ -48,6 +49,9 @@ result_list <- data.frame()
 #get unique list of failures
 all_failures <- unique(zscore$`Failure Code Description`)
 
+#document to store all plots
+pdf("testing_several_plots.pdf")
+
 #Loop through each row in dataset and group by failure
       for(j in 1:length(all_failures)){
       # -----------------------------------------
@@ -56,8 +60,9 @@ all_failures <- unique(zscore$`Failure Code Description`)
       print(paste("failure:", all_failures[j]))
       subset <- zscore[which(zscore$`Failure Code Description` == all_failures[j]),]
       print(subset)
-      #subset <- zscore[which(zscore$`Failure Code Description` == "BC02 - Barrel Clamp Assy- Corrosion"),]
       
+      
+      #subset <- zscore[which(zscore$`Failure Code Description` == "BC02 - Barrel Clamp Assy- Corrosion"),]
       #examples of failures to try as use cases
       # -----------------------------------------
       #BZ99 - Bezel Assy- Sensor Clip Damage #no variation
@@ -68,13 +73,13 @@ all_failures <- unique(zscore$`Failure Code Description`)
       # -----------------------------------------
       #  Code each western electric rule using indexes and plot with colors for each rule it meets
       # -----------------------------------------
-      #len <- 9
       zz1<- as.Date(subset$`Start of Month`, format = "%m/%d/%Y")
       zz<- subset$`Z-Score`
       zz.s <- sd(subset$`Z-Score`)
       
+      
       #initial plot
-      plot(zz,ylim=c(-4*zz.s,4*zz.s),type="b", pch=16, main= paste(subset$`Failure Code Description`[1]), ylab= 'z-scores', xlab = 'Month/Year')
+      plot(zz,ylim=c(-4*zz.s,4*zz.s),type="b", pch=16, main= paste(subset$`Failure Code Description`[1]), ylab= 'z-scores', xlab = 'Last 9 Months ( 9 = last month)')
       abline(h=0)
       abline(h=-3*zz.s,col="red3",lty=2)
       abline(h=3*zz.s,col="red3",lty=2)
@@ -146,8 +151,7 @@ all_failures <- unique(zscore$`Failure Code Description`)
       
       # Color original plot with rules met
       # -----------------------------------------
-      ## using rule1 = red, rule2 = orange, rule3 = blue, rule 4 = orange
-      ## function takes the rle object, and the warning indexes and plots the right points
+      ## function takes the rle object, and the warning indexes, plots the right points and returns whh rule is violated
       
       plot.warn.x <- function(tsobj, rleobj, ind, col,...) {
         if(length(ind) <= 0) return()
@@ -170,8 +174,6 @@ all_failures <- unique(zscore$`Failure Code Description`)
       
       # #Return the failure name for any failure meeting any of the WE rule in the last month
       # #-----------------------------------------
-      #NOT WORKING
-      #-------------------------
       # #if any of the criteria is met, return the failure code
        if(!is.null(we.1) && we.1 == TRUE || !is.null(we.2) && we.2 == TRUE || !is.null(we.3) && we.3 == TRUE || !is.null(we.4) && we.4 == TRUE || !is.null(we.5) && we.5== TRUE){
          print(paste("Failure ", subset$`Failure Code Description`[1], " meets criteria for last month."))
@@ -179,27 +181,6 @@ all_failures <- unique(zscore$`Failure Code Description`)
          print(output)
          result_list <- rbind(result_list, output)
        } else{}
-           #print(paste("Failure ", subset$`Failure Code Description`[1], "does not meet criteria for lat month."))}
-    }
+      }
 
-  
-  #NOT WORKING YET - FIGURE OUT HOW TO TAG THE CORRECT INDEX FOR THE MONTHS
-  # -----------------------------------------
-    
-
-  #   
-  # #to see which indices/months are each rule is true in
-  # rule1.yes <-  which(zz.rule1.rle$values==TRUE)
-  # subset$`Start of Month`[rule1.yes]
-  # 
-  # rule2.yes <-  which(zz.rule2.rle$values==TRUE)
-  # subset$`Start of Month`[rule2.yes]
-  # 
-  # rule3.yes <-  which(zz.rule3.rle$values==TRUE)
-  # subset$`Start of Month`[rule3.yes]
-  # 
-  # rule4.yes <-  which(zz.rule4.rle$values==TRUE)
-  # subset$`Start of Month`[rule4.yes]
-  # 
-  
-%%
+dev.off()
