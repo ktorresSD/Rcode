@@ -1,7 +1,7 @@
 # -----------------------------------------
-# AuthoR: Katy Torres
+# Author: Katy Torres
 # Project start: 9/28/2022
-# Last edited on: 10/06/2022 12:01 pm PST by Katy Torres
+# Last edited on: 10/17/2022 8:43am pm PST by Katy Torres
 
 # Dataset: list of failures and the z score for each month.
 
@@ -11,7 +11,7 @@
     ## Western Electric rule 2 - 2 consecutive points fall outside 2 sigma limits
     ## Western Electric rule 3 - 4 consecutive points fall beyond 1 sigma limits
     ## Western Electric rule 4 - 9 consecutive points fall on one side of the centerline
-    ## Western Electric rule 5 -6 consecutive points fall outside 2 sigma limits
+    ## Western Electric rule 5 - 6 consecutive points fall outside 2 sigma limits
     
     ##The function returns a list of failures that meet one of the rules for the latest month.
 
@@ -23,9 +23,8 @@
 #Things I need to figure out that are not working
 # -----------------------------------------
 #LOOP RETURN:
-  #returning the list of items that meet criteria
-  #which points meet criteria
-  #or which rule was violated
+  #returning the list of items that meet criteria only for month 9
+  #either which points meet criteria or which rule was violated
 
 #PLOT:
   #figure out months in axis
@@ -44,20 +43,19 @@ zscore <- read_csv("zscore2.csv")
 # -----------------------------------------
 #create dataframes to store output into
 subset <- NULL
+result_list <- data.frame()
 
 #get unique list of failures
 all_failures <- unique(zscore$`Failure Code Description`)
 
 #Loop through each row in dataset and group by failure
-failures_meeting_criteria <- function(zscore) {
       for(j in 1:length(all_failures)){
       # -----------------------------------------
       #  Make subset of all failures with a specific failure
       # -----------------------------------------
       print(paste("failure:", all_failures[j]))
       subset <- zscore[which(zscore$`Failure Code Description` == all_failures[j]),]
-      print(head(subset))
-      print("making chart")
+      print(subset)
       #subset <- zscore[which(zscore$`Failure Code Description` == "BC02 - Barrel Clamp Assy- Corrosion"),]
       
       #examples of failures to try as use cases
@@ -112,6 +110,7 @@ failures_meeting_criteria <- function(zscore) {
       zz.rule1.warn <- which(zz.rule1.rle$lengths >= 1 
                              & zz.rule1.rle$values == TRUE)
       
+      
       ## Western Electric rule 2
       # -----------------------------------------
       ## 2 consecutive points fall outside 2 sigma limits
@@ -119,6 +118,8 @@ failures_meeting_criteria <- function(zscore) {
       zz.rule2.rle <- rle(as.vector(zz.rule2))
       zz.rule2.warn <- which(zz.rule2.rle$lengths >= 2 
                              & zz.rule2.rle$values == TRUE)
+      zz.rule2.lastmonth <- if(zz.rule2[9] == TRUE && zz.rule2.rle$values == TRUE){
+        zz.rule2.lastmonth<- TRUE}else{zz.rule2.lastmonth <-FALSE}
       
       ## Western Electric rule 3
       # -----------------------------------------
@@ -156,34 +157,31 @@ failures_meeting_criteria <- function(zscore) {
         for(i in seq(along=ind)) {
           x.coords <- ind.x[ind[i]]:(ind.x[ind[i]+1]-1)
           lines(x.coords + start(tsobj)[1]-1,tsobj[x.coords],col=col,...)
-        }
+          #if('9' %in% x.coords){print(TRUE)}else{print(FALSE)} # cant figure out how to look at only 9th one being true here
+          if('9' %in% x.coords){return(TRUE)}else{return(FALSE)} # cant figure out how to look at only 9th one being true here
+          
+          }
       }
-      plot.warn.x(zz, zz.rule5.rle, zz.rule5.warn, "purple", lwd=3)  
-      plot.warn.x(zz, zz.rule4.rle, zz.rule4.warn, "orange", lwd=3)
-      plot.warn.x(zz, zz.rule3.rle, zz.rule3.warn, "blue", lwd=3)
-      plot.warn.x(zz, zz.rule2.rle, zz.rule2.warn, "green", lwd=3)
-      plot.warn.x(zz, zz.rule1.rle, zz.rule1.warn, "red", lwd=3)
-
+      we.5 <- plot.warn.x(zz, zz.rule5.rle, zz.rule5.warn, "purple", lwd=3)  
+      we.4 <-plot.warn.x(zz, zz.rule4.rle, zz.rule4.warn, "orange", lwd=3)
+      we.3 <-plot.warn.x(zz, zz.rule3.rle, zz.rule3.warn, "blue", lwd=3)
+      we.2 <-plot.warn.x(zz, zz.rule2.rle, zz.rule2.warn, "green", lwd=3)
+      we.1 <-plot.warn.x(zz, zz.rule1.rle, zz.rule1.warn, "red", lwd=3)
+      
+      # #Return the failure name for any failure meeting any of the WE rule in the last month
+      # #-----------------------------------------
       #NOT WORKING
       #-------------------------
       # #if any of the criteria is met, return the failure code
-      # if(zz.rule1.warn >=1 || zz.rule2.warn >=1|| zz.rule3.warn >=1|| zz.rule4.warn>=1 || zz.rule5.warn>=1){
-      #   out <-subset$`Failure Code Description`[1]} 
-      # else {
-      #   out <- cbind(out, res)}
-
-      print(paste("ending loop"))
+       if(we.1 == TRUE ||  we.2 == TRUE || we.3 == TRUE || we.4 == TRUE || we.5== TRUE){
+         print(paste("Failure ", subset$`Failure Code Description`[1], " meets criteria for last month."))
+         output <- subset$`Failure Code Description`[1]
+         print(output)
+         result_list <- rbind(result_list, output)
+       } else{}
+           #print(paste("Failure ", subset$`Failure Code Description`[1], "does not meet criteria for lat month."))}
     }
-    # #Eventually, close the loop by returning the failure name for any failure meeting any of the WE rules
-    # #-----------------------------------------
 
-    # 
-    print(paste("ENDING function"))
-    }
-  
-    
-
-failures_meeting_criteria(zscore)
   
   #NOT WORKING YET - FIGURE OUT HOW TO TAG THE CORRECT INDEX FOR THE MONTHS
   # -----------------------------------------
