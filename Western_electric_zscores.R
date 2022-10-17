@@ -173,7 +173,7 @@ all_failures <- unique(zscore$`Failure Code Description`)
       #NOT WORKING
       #-------------------------
       # #if any of the criteria is met, return the failure code
-       if(we.1 == TRUE ||  we.2 == TRUE || we.3 == TRUE || we.4 == TRUE || we.5== TRUE){
+       if(!is.null(we.1) && we.1 == TRUE || !is.null(we.2) && we.2 == TRUE || !is.null(we.3) && we.3 == TRUE || !is.null(we.4) && we.4 == TRUE || !is.null(we.5) && we.5== TRUE){
          print(paste("Failure ", subset$`Failure Code Description`[1], " meets criteria for last month."))
          output <- subset$`Failure Code Description`[1]
          print(output)
@@ -202,3 +202,4 @@ all_failures <- unique(zscore$`Failure Code Description`)
   # subset$`Start of Month`[rule4.yes]
   # 
   
+%%
