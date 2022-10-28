@@ -16,7 +16,6 @@
     ##The function returns a list of failures that meet one of the rules for the latest month.
 
 #Extra: Create plots of each failure showing which rule is violated and when. Appends these visuals to some sort of document
-
 # -----------------------------------------
 
 
@@ -33,7 +32,17 @@
 # -----------------------------------------
 setwd("~/1_Western Electric Rules_R")
 library(readr)
-zscore <- read_csv("zscore2.csv")
+zscore <- read_csv("zscore3.csv")
+#sort by date and failures
+zscore<- zscore[order(zscore$`24m_Z-Score`,  decreasing = FALSE),]
+zscore<- zscore[order(zscore$`Failure Code Description`, decreasing = FALSE),]
+
+#grabbing data from powerBI
+#zscore = read.csv('C:/Users/10313832/REditorWrapper_58963cde-b53e-441a-8ba5-d973e3597824/input_df_ed39bb4b-fb13-49f9-be67-6282aa929c31.csv', check.names = FALSE, encoding = "UTF-8", blank.lines.skip = FALSE)
+
+#TEMPORARY STEP, ONLY TAKE THE DATA WITH NO NA'S
+# -----------------------------------------
+#zscore <- subset(zscore, !is.na(zscore$`24m_Z-Score`) )
 
 #Get today's date to name files
 currentDate <- Sys.Date()
@@ -61,7 +70,7 @@ all_failures <- unique(zscore$`Failure Code Description`)
       print(paste("failure:", all_failures[j]))
       subset <- zscore[which(zscore$`Failure Code Description` == all_failures[j]),]
       print(subset)
-      
+      #print(nrow(subset))
       
       #subset <- zscore[which(zscore$`Failure Code Description` == "BC02 - Barrel Clamp Assy- Corrosion"),]
       #examples of failures to try as use cases
@@ -74,9 +83,9 @@ all_failures <- unique(zscore$`Failure Code Description`)
       # -----------------------------------------
       #  Code each western electric rule using indexes and plot with colors for each rule it meets
       # -----------------------------------------
-      zz1<- as.Date(subset$`Start of Month`, format = "%m/%d/%Y")
-      zz<- subset$`Z-Score`
-      zz.s <- sd(subset$`Z-Score`)
+      #zz1<- as.Date(subset$`Month-Year`, format = "%m/%d/%Y")
+      zz<- round(subset$`24m_Z-Score`, digits = 2)
+      zz.s <- sd(subset$`24m_Z-Score`)
       
       
       #initial plot
@@ -88,7 +97,7 @@ all_failures <- unique(zscore$`Failure Code Description`)
       abline(h=-2*zz.s,col="darkorange2",lty=2)
       abline(h=zz.s,col="darkgoldenrod1",lty=2)
       abline(h=-zz.s,col="darkgoldenrod1",lty=2)
-      legend("topleft", legend=c("WE Rule 1", "WE Rule 2", "WE Rule 3", "WE Rule 4", "WE Rule 5"),
+      legend("topleft", legend=c("WE Rule 1", "WE Rule 2", "WE Rule 3", "WE Rule 4", "EU Monitoring"),
              col=c("red", "green", "blue", "orange", "purple"), lty=1,lwd=3, cex=0.8)
       text(zz,labels = zz,  cex = 0.6, pos = 3, col = "black")
       mysubtitle = "Horizontal lines are std dev (1 sigma, 2 sigma, 3 sigma)"
@@ -115,6 +124,8 @@ all_failures <- unique(zscore$`Failure Code Description`)
       zz.rule1.rle <- rle(as.vector(zz.rule1))
       zz.rule1.warn <- which(zz.rule1.rle$lengths >= 1 
                              & zz.rule1.rle$values == TRUE)
+      zz.rule1.lastmonth <- if(zz.rule1[9] == TRUE && zz.rule1.rle$values == TRUE){
+        zz.rule1.lastmonth<- TRUE}else{zz.rule1.lastmonth <-FALSE}
       
       
       ## Western Electric rule 2
@@ -134,13 +145,17 @@ all_failures <- unique(zscore$`Failure Code Description`)
       zz.rule3.rle <- rle(as.vector(zz.rule3))
       zz.rule3.warn <- which(zz.rule3.rle$lengths >= 4
                              & zz.rule3.rle$values == TRUE)
+      zz.rule3.lastmonth <- if(zz.rule3[9] == TRUE && zz.rule3.rle$values == TRUE){
+        zz.rule3.lastmonth<- TRUE}else{zz.rule3.lastmonth <-FALSE}
       
       ## Western Electric rule 4
       # -----------------------------------------
       ## 9 consecutive points fall on one side of the centerline
       zz.rule4 <- zz > 0
       zz.rule4.rle <- rle(as.vector(zz.rule4))
-      zz.rule4.warn <- which(zz.rule4.rle$lengths >= 9)
+      zz.rule4.warn <- which(zz.rule4.rle$lengths >= 9 && zz.rule4.rle$values == TRUE)
+      zz.rule4.lastmonth <- if(zz.rule4[9] == TRUE && zz.rule4.rle$values == TRUE){
+        zz.rule4.lastmonth<- TRUE}else{zz.rule4.lastmonth <-FALSE}
       
       ## Western Electric rule 5
       # -----------------------------------------
@@ -149,6 +164,8 @@ all_failures <- unique(zscore$`Failure Code Description`)
       zz.rule5.rle <- rle(as.vector(zz.rule5))
       zz.rule5.warn <- which(zz.rule5.rle$lengths >= 6 
                              & zz.rule5.rle$values == TRUE)
+      zz.rule5.lastmonth <- if(zz.rule5[9] == TRUE && zz.rule5.rle$values == TRUE){
+        zz.rule5.lastmonth<- TRUE}else{zz.rule5.lastmonth <-FALSE}
       
       # Color original plot with rules met
       # -----------------------------------------
@@ -162,11 +179,11 @@ all_failures <- unique(zscore$`Failure Code Description`)
         for(i in seq(along=ind)) {
           x.coords <- ind.x[ind[i]]:(ind.x[ind[i]+1]-1)
           lines(x.coords + start(tsobj)[1]-1,tsobj[x.coords],col=col,...)
-          #if('9' %in% x.coords){print(TRUE)}else{print(FALSE)} # cant figure out how to look at only 9th one being true here
-          if('9' %in% x.coords){return(TRUE)}else{return(FALSE)} # cant figure out how to look at only 9th one being true here
+          if('9' %in% x.coords){return(1)}else{return(0)}
           
           }
       }
+      #if criteria met in 9th month, it will return true
       we.5 <- plot.warn.x(zz, zz.rule5.rle, zz.rule5.warn, "purple", lwd=3)  
       we.4 <-plot.warn.x(zz, zz.rule4.rle, zz.rule4.warn, "orange", lwd=3)
       we.3 <-plot.warn.x(zz, zz.rule3.rle, zz.rule3.warn, "blue", lwd=3)
@@ -176,12 +193,23 @@ all_failures <- unique(zscore$`Failure Code Description`)
       # #Return the failure name for any failure meeting any of the WE rule in the last month
       # #-----------------------------------------
       # #if any of the criteria is met, return the failure code
-       if(!is.null(we.1) && we.1 == TRUE || !is.null(we.2) && we.2 == TRUE || !is.null(we.3) && we.3 == TRUE || !is.null(we.4) && we.4 == TRUE || !is.null(we.5) && we.5== TRUE){
-         print(paste("Failure ", subset$`Failure Code Description`[1], " meets criteria for last month."))
-         output <- subset$`Failure Code Description`[1]
-         print(output)
-         result_list <- rbind(result_list, output)
-       } else{}
+      if(!is.null(we.1) && we.1 == 1 || !is.null(we.2) && we.2 == 1 || !is.null(we.3) && we.3 == 1 || !is.null(we.4) && we.4 == 1 || !is.null(we.5) && we.5== 1){
+        print(paste("Failure ", subset$`Failure Code Description`[1], " meets criteria for last month."))
+        output <- subset$`Failure Code Description`[1]
+        print(output)
+        we.1 <- ifelse(is.null(we.1), 0, we.1)
+        we.2 <- ifelse(is.null(we.2), 0, we.2)
+        we.3 <- ifelse(is.null(we.3), 0, we.3)
+        we.4 <- ifelse(is.null(we.4), 0, we.4)
+        we.5 <- ifelse(is.null(we.5), 0, we.5)
+        
+        #if not variability, don't let it show up in list
+        ifelse(zz.s==0,(we.1==0 && we.2 ==0 && we.3==0 && we.4==0 && we.5==0),NA)
+        
+        df <- data.frame(cbind(output, we.1, we.2, we.3, we.4, we.5))
+        colnames(df) <- c("Product_Family_Failure","WE_RULE1", "WE_RULE2", "WE_RULE3","WE_RULE4", "EU_Monitoring")
+        result_list <- rbind(result_list, df)
+      } else{}
       }
 
 dev.off()
